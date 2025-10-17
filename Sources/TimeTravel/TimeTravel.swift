@@ -50,7 +50,6 @@ extension Date {
     ///   - calendar: The `Calendar` to use for the calculation. The default value is the current calendar.
     /// - Returns: A new date, or nil if a date could not be calculated with the given input.
     public func inTimeZone(_ timeZone: TimeZone, calendar: Calendar = .current) -> Date? {
-        guard timeZone != .current else { return self }
         let delta = calendar.timeZone.secondsFromTimeZone(timeZone, forDate: self)
         return calendar.date(byAdding: .second, value: delta, to: self)
     }

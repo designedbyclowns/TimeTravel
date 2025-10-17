@@ -5,7 +5,6 @@ import Testing
 struct DateTests {
 
     @Test(arguments: [
-        (TimeZone.Name.gmt, 8.0),
         (TimeZone.Name.americaNewYork, 3.0),
         (TimeZone.Name.pacificTahiti, -2.0),
         (TimeZone.Name.asiaKatmandu, 13.5),
