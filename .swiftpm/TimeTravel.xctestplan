@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "3F5EE0CA-FE7B-4073-9D3C-1D30F0181153",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "performanceAntipatternCheckerEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TimeTravelTests",
+        "name" : "TimeTravelTests"
+      }
+    }
+  ],
+  "version" : 1
+}

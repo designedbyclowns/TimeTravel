@@ -1,6 +1,16 @@
-import Foundation
+public import Foundation
 
 extension Date {
+    /// Returns a new `Date` representing the date calculated by updating the time zone.
+    /// - Parameters:
+    ///   - timeZone: The time zone to set the date to.
+    ///   - calendar: The `Calendar` to use for the calculation. The default value is the current calendar.
+    /// - Returns: A new date, or nil if a date could not be calculated with the given input.
+    public func inTimeZone(_ timeZone: TimeZone, calendar: Calendar = .current) -> Date? {
+        let delta = calendar.timeZone.secondsFromTimeZone(timeZone, forDate: self)
+        return calendar.date(byAdding: .second, value: delta, to: self)
+    }
+    
     /**
      A stable date and time comes in handy when testing date functions. This Seems as good as any.
      
@@ -10,14 +20,15 @@ extension Date {
      
      🐋 You're welcome. 💣
      */
-    static let explodingWhaleDay = DateComponents(
+    public static let explodingWhaleDay = DateComponents(
         calendar: Calendar(identifier: .gregorian),
         timeZone: TimeZone(identifier: "America/Los_Angeles"),
         year: 1970,
         month: 11,
-        day: 20,
-        hour: 12,
-        minute: 34,
-        second: 56
+        day: 12,
+        hour: 15,
+        minute: 45,
+        second: 0
     ).date!
 }
+
