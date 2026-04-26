@@ -11,6 +11,19 @@ struct TimeZoneTests {
             }
         }
     }
+
+    /// Catches drift between the generated `TimeZone.Name` enum and the
+    /// host platform's tzdata. Regenerate via `swift Scripts/generate-timezone-names.swift`.
+    @Test func enumMatchesHostTimeZoneIdentifiers() {
+        let enumIdentifiers = Set(TimeZone.Name.allCases.map(\.rawValue))
+        let systemIdentifiers = Set(TimeZone.knownTimeZoneIdentifiers)
+
+        let missingFromEnum = systemIdentifiers.subtracting(enumIdentifiers).sorted()
+        let extraInEnum = enumIdentifiers.subtracting(systemIdentifiers).sorted()
+
+        #expect(missingFromEnum.isEmpty, "TimeZone.Name is missing host identifiers: \(missingFromEnum)")
+        #expect(extraInEnum.isEmpty, "TimeZone.Name has identifiers not present on host: \(extraInEnum)")
+    }
     
     @Test(arguments: [
         (TimeZone.Name.gmt, -28800),
