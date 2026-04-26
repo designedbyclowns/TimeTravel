@@ -21,7 +21,7 @@ struct CalendarTests {
         let newDate = try #require(calendar.date(bySettingTimeZone: newTimeZone, of: date))
 
         let delta = date.timeIntervalSinceReferenceDate - newDate.timeIntervalSinceReferenceDate
-        #expect(expectEqual(delta, arg.1.hours))
+        expectEqual(delta, arg.1.hours)
     }
 
     @Test func sameTimeZoneIsIdentity() throws {

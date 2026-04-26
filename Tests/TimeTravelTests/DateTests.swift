@@ -22,7 +22,7 @@ struct DateTests {
         let newDate = try #require(date.inTimeZone(newTimeZone, calendar: calendar))
 
         let delta = date.timeIntervalSinceReferenceDate - newDate.timeIntervalSinceReferenceDate
-        #expect(expectEqual(delta, arg.1.hours))
+        expectEqual(delta, arg.1.hours)
     }
 
     @Test func sameTimeZoneIsIdentity() throws {
@@ -55,7 +55,7 @@ struct DateTests {
         let standardShift = standard.timeIntervalSince(try #require(standard.inTimeZone(gmt, calendar: calendar)))
         let daylightShift = daylight.timeIntervalSince(try #require(daylight.inTimeZone(gmt, calendar: calendar)))
 
-        #expect(expectEqual(standardShift, 8.hours))
-        #expect(expectEqual(daylightShift, 7.hours))
+        expectEqual(standardShift, 8.hours)
+        expectEqual(daylightShift, 7.hours)
     }
 }

@@ -4,12 +4,9 @@ import Testing
 
 struct TimeZoneTests {
 
-    @Test func initWithName() {
-        TimeZone.Name.allCases.forEach {
-            if TimeZone(name: $0) == nil {
-                Issue.record("Failed to initialize TimeZone with name: \($0)")
-            }
-        }
+    @Test(arguments: TimeZone.Name.allCases)
+    func initWithName(name: TimeZone.Name) {
+        #expect(TimeZone(name: name) != nil)
     }
 
     /// Catches drift between the generated `TimeZone.Name` enum and the
