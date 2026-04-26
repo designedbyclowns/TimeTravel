@@ -4,6 +4,8 @@ extension TimeZone {
     /// Names of time zones known to the system.
     ///
     /// Timezones have unique names in the form "Area/Location", e.g. "America/New_York".
+    ///
+    /// Generated from `TimeZone.knownTimeZoneIdentifiers` by `Scripts/generate-timezone-names.swift`.
     public enum Name: String, CaseIterable, Sendable {
         /// Africa/Abidjan
         case africaAbidjan = "Africa/Abidjan"
@@ -891,7 +893,7 @@ extension TimeZone {
         case pacificWake = "Pacific/Wake"
         /// Pacific/Wallis
         case pacificWallis = "Pacific/Wallis"
-        
+
         /// Area is the name of a continent, an ocean, or "Etc".
         ///
         /// The continents and oceans used are Africa, America, Antarctica,
@@ -903,7 +905,7 @@ extension TimeZone {
             guard self != .gmt else { return "Etc" }
             return rawValue.components(separatedBy: "/").first ?? rawValue
         }
-        
+
         /// Location is the name of a specific location within the area – usually a city or small island.
         ///
         /// Country names are not normally used in this scheme, primarily because they would not be robust,
@@ -911,7 +913,7 @@ extension TimeZone {
         public var location: String {
             rawValue.components(separatedBy: "/").last ?? rawValue
         }
-        
+
         /// All the time zones areas known to the system.
         public static var allAreas: [String] {
             Set(allCases.map({ $0.area })).sorted()

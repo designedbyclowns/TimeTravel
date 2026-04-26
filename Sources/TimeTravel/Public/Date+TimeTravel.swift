@@ -2,11 +2,15 @@ public import Foundation
 
 extension Date {
     /// Returns a new `Date` representing the date calculated by updating the time zone.
+    ///
+    /// The supplied calendar's `timeZone` is treated as the *source* time zone of `self`.
+    /// No default is provided because relying on `Calendar.current` makes the result depend
+    /// on the host machine — the very non-determinism this library exists to avoid.
     /// - Parameters:
-    ///   - timeZone: The time zone to set the date to.
-    ///   - calendar: The `Calendar` to use for the calculation. The default value is the current calendar.
+    ///   - timeZone: The destination time zone.
+    ///   - calendar: The calendar whose `timeZone` represents the source frame for `self`.
     /// - Returns: A new date, or nil if a date could not be calculated with the given input.
-    public func inTimeZone(_ timeZone: TimeZone, calendar: Calendar = .current) -> Date? {
+    public func inTimeZone(_ timeZone: TimeZone, calendar: Calendar) -> Date? {
         let delta = calendar.timeZone.secondsFromTimeZone(timeZone, forDate: self)
         return calendar.date(byAdding: .second, value: delta, to: self)
     }
