@@ -44,3 +44,7 @@ let shifted = date.inTimeZone(nyc, calendar: calendar)!
 ### Deprecated
 
 - ``Foundation/TimeZone/timeIntervalFromTimeZone(_:forDate:)``
+
+## Further reading
+
+Calendars and dates are full of edge cases that look obvious until they aren't. For a quick tour of the assumptions that quietly break — leap seconds, time zones that change offset, calendars that disagree on what year it is — see [Your Calendrical Fallacy Is…](https://yourcalendricalfallacyis.com).
