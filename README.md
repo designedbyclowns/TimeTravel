@@ -37,7 +37,7 @@ let westCoastStyle = Date.FormatStyle(
 )
 ```
 
-The westCoatFormat style uses the same time zone as the date we are using because thats the time zone of Florence, Oregon in the US where the dead whale was dynamited.
+The `westCoastStyle` uses the same time zone as the date we are using because that's the time zone of Florence, Oregon in the US where the dead whale was dynamited.
 
 ```swift
 import TimeTravel
@@ -48,7 +48,7 @@ westCoastStyle.format(Date.explodingWhaleDay)
 // "Thursday, 12 November 1970 at 3:45:00 PM GMT-8"
 ```
 
-To simulate how this would look to someone on the east cost of the US, we can create another `Date/FormatStyle`, using a different time zone:
+To simulate how this would look to someone on the east coast of the US, we can create another `Date/FormatStyle`, using a different time zone:
 
 ```swift
 let eastCoastStyle = Date.FormatStyle(
@@ -73,32 +73,27 @@ let date = Date.explodingWhaleDay
 date.timeIntervalSince1970
 // 27,301,500
 
-let calendar = Calendar(identifier: .gregorian)
+var calendar = Calendar(identifier: .gregorian)
+calendar.timeZone = TimeZone(identifier: "America/Los_Angeles")!
 let newTimeZone = TimeZone(identifier: "America/New_York")!
 
-let newDate = calendar.date(bySettingTimeZone timeZone: newTimeZone, of date: Date)
+let newDate = calendar.date(bySettingTimeZone: newTimeZone, of: date)!
 
 newDate.timeIntervalSince1970
 // 27,290,700.0
 
 westCoastStyle.format(newDate)
-// Thursday, November 12, 1970 at 12:45:00 PST
+// Thursday, November 12, 1970 at 12:45:00 PM PST
 
 eastCoastStyle.format(newDate)
-// "Thursday, November 12, 1970 at 15:45:00 EST"
+// Thursday, November 12, 1970 at 3:45:00 PM EST
 
-or 
+// or
 
-let newDate2 = date.inTimeZone(newTimeZone, calendar: calendar)
+let newDate2 = date.inTimeZone(newTimeZone, calendar: calendar)!
 
 newDate2.timeIntervalSince1970
 // 27,290,700.0
-
-westCoastStyle.format(newDate2)
-// Thursday, November 12, 1970 at 12:45:00 PST
-
-eastCoastStyle.format(newDate2)
-// "Thursday, November 12, 1970 at 15:45:00 EST"
 
 ```
 
