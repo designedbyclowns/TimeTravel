@@ -37,6 +37,11 @@ struct TimeZoneTests {
         let secondsFromTimeZone = timeZone.secondsFromTimeZone(otherTimeZone, forDate: Date.explodingWhaleDay)
         #expect(secondsFromTimeZone == arg.1)
     }
+
+    @Test func sameTimeZoneIsZero() throws {
+        let la = try #require(TimeZone(name: .americaLosAngeles))
+        #expect(la.secondsFromTimeZone(la, forDate: Date.explodingWhaleDay) == 0)
+    }
 }
 
 

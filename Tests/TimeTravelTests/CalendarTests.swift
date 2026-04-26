@@ -11,16 +11,26 @@ struct CalendarTests {
         (TimeZone.Name.africaMogadishu, 11.0)
     ]) func dateBySettingTimeZone(arg: (TimeZone.Name, TimeInterval)) throws {
         let newTimeZone = try #require(TimeZone(name: arg.0))
-        
+
         let sourceTimeZone = try #require(TimeZone(name: .americaLosAngeles))
-        var calendar = Calendar.init(identifier: .gregorian)
+        var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = sourceTimeZone
-        
+
         let date = Date.explodingWhaleDay
-        
+
         let newDate = try #require(calendar.date(bySettingTimeZone: newTimeZone, of: date))
-        
+
         let delta = date.timeIntervalSinceReferenceDate - newDate.timeIntervalSinceReferenceDate
-        #expect(delta == arg.1.hours)
+        #expect(expectEqual(delta, arg.1.hours))
+    }
+
+    @Test func sameTimeZoneIsIdentity() throws {
+        let tz = try #require(TimeZone(name: .americaLosAngeles))
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = tz
+
+        let date = Date.explodingWhaleDay
+        let result = try #require(calendar.date(bySettingTimeZone: tz, of: date))
+        #expect(result == date)
     }
 }
