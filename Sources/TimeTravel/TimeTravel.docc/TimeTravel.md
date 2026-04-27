@@ -4,9 +4,9 @@ Foundation extensions for re-anchoring a `Date` to a different `TimeZone`.
 
 ## Overview
 
-A `Date` is an absolute point in time, independent of any calendar or time zone. But everyday dates — a check-in time, a calendar event, a deadline — are wall-clock values *in a specific place*. ``TimeTravel`` provides extensions that compute the offset between two time zones at a given instant and shift the date accordingly, so you can deterministically re-anchor a wall-clock value from one zone to another.
+A `Date` is an absolute point in time — it carries no time zone of its own. That's the right model for "when did this happen", but the wrong model when the wall-clock value is the truth: a photo's 6 AM Tokyo timestamp, a diary entry in the author's local time, a train departing at 8 AM Paris time, or a test assertion that shouldn't drift between a developer's laptop and CI.
 
-This is most useful in tests, where the host machine's time zone would otherwise leak into results.
+``TimeTravel`` re-anchors a `Date` to a new time zone — the underlying instant shifts so the wall-clock reading travels with it. The source time zone needs to be captured alongside the date; ``TimeTravel`` can't infer it from the absolute instant alone.
 
 ```swift
 import TimeTravel
@@ -18,7 +18,7 @@ calendar.timeZone = TimeZone(identifier: "America/Los_Angeles")!
 
 let nyc = TimeZone(identifier: "America/New_York")!
 let shifted = date.inTimeZone(nyc, calendar: calendar)!
-// shifted's wall-clock in NYC is 15:45 — the same wall-clock value, re-anchored.
+// In NYC, `shifted` reads 15:45 — the same wall-clock value, re-anchored.
 ```
 
 ## Topics
@@ -45,6 +45,6 @@ let shifted = date.inTimeZone(nyc, calendar: calendar)!
 
 - ``Foundation/TimeZone/timeIntervalFromTimeZone(_:forDate:)``
 
-## Further reading
+## See Also
 
-Calendars and dates are full of edge cases that look obvious until they aren't. For a quick tour of the assumptions that quietly break — leap seconds, time zones that change offset, calendars that disagree on what year it is — see [Your Calendrical Fallacy Is…](https://yourcalendricalfallacyis.com).
+- [Your Calendrical Fallacy Is…](https://yourcalendricalfallacyis.com) — a quick tour of calendar and date assumptions that quietly break: leap seconds, time zones that change offset, calendars that disagree on what year it is.

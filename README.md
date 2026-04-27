@@ -3,33 +3,35 @@
 
 # TimeTravel
 
-This package provides some extensions to change the time zone of a date.
+Re-anchor a `Date` to a new time zone — the underlying instant shifts so the wall-clock reading travels with it.
 
-## Overview
+Swift's `Date` is just an absolute instant — it carries no time zone of its own. That's the right model for "when did this happen", but the wrong model for cases where the wall-clock value is the truth:
 
-When we use dates in a general sense, we are typically using them to reference a date and time, *in a specific location*.
+- **Photos.** A photo taken at 6 AM in Tokyo should read as 6 AM whether the viewer is in Tokyo, New York, or Reykjavík.
+- **Journals & diaries.** An entry should display in the author's local time, not the reader's.
+- **Travel itineraries.** A train departing at 8 AM Paris time should read as 8 AM whether you're checking the schedule from London or LA.
+- **Deterministic tests.** The same date assertion shouldn't pass on a developer's laptop and fail in CI.
 
-For example when making a hotel reservation, the check-in time is in reference to that date and time in the local time where the hotel is located, which may not be the same as yours.
-
-The [Date](https://developer.apple.com/documentation/foundation/date) type is described as 
-
-> A Date value encapsulate a single point in time, independent of any particular calendrical system or time zone. Date values represent a time interval relative to an absolute reference date.
-
-Additionally the [TimeZone](https://developer.apple.com/documentation/foundation/timezone) documentation includes this important statement:
-
-> Cocoa does not provide any API to change the time zone of the computer, or of other applications.
-
-This makes it tricky to compare dates in unit tests, as the tests need to pass or fail regardless of what time zone of the system the tests are running on.
-
-
-One approach is to create a new date as if it was created in that time zone. Which is what this library provides.
-
+In each case, the source time zone needs to be captured alongside the date — TimeTravel can't infer it from the absolute instant alone.
 
 ## Usage
 
-To illustrate this its helpful to use a historical event with a known date and time zone. ``Date.explodingWhaleDay`` works nicely.
+```swift
+import TimeTravel
 
-To make it a little easier to read these dates we can create a `Date/FormatStyle` with a specific time zone. 
+var calendar = Calendar(identifier: .gregorian)
+calendar.timeZone = TimeZone(identifier: "America/Los_Angeles")!
+
+let nyc = TimeZone(identifier: "America/New_York")!
+let date = Date.explodingWhaleDay                        // 3:45 PM Pacific
+let shifted = date.inTimeZone(nyc, calendar: calendar)!  // 3:45 PM Eastern
+```
+
+The `calendar` argument declares the *source* time zone — the frame in which `date` should be read. There's no default by design: `Calendar.current` would tie the result to the host machine, which is the non-determinism this library exists to avoid.
+
+## Anatomy of a date shift
+
+To see what's actually happening, it helps to format the same date in two time zones with [`Date.FormatStyle`](https://developer.apple.com/documentation/foundation/date/formatstyle):
 
 ```swift
 let westCoastStyle = Date.FormatStyle(
@@ -38,70 +40,48 @@ let westCoastStyle = Date.FormatStyle(
     calendar: Calendar(identifier: .gregorian),
     timeZone: TimeZone(identifier: "America/Los_Angeles")!
 )
-```
 
-The `westCoastStyle` uses the same time zone as the date we are using because that's the time zone of Florence, Oregon in the US where the dead whale was dynamited.
-
-```swift
-import TimeTravel
-
-let date = Date.explodingWhaleDay
-
-westCoastStyle.format(Date.explodingWhaleDay)
-// "Thursday, 12 November 1970 at 3:45:00 PM GMT-8"
-```
-
-To simulate how this would look to someone on the east coast of the US, we can create another `Date/FormatStyle`, using a different time zone:
-
-```swift
 let eastCoastStyle = Date.FormatStyle(
     date: .complete,
     time: .complete,
     calendar: Calendar(identifier: .gregorian),
     timeZone: TimeZone(identifier: "America/New_York")!
 )
+```
 
-eastCoastStyle.format(Date.explodingWhaleDay)
+Format styles don't change the date — they only change how it's rendered. The same instant reads differently in each time zone:
+
+```swift
+let date = Date.explodingWhaleDay
+
+westCoastStyle.format(date)
+// "Thursday, 12 November 1970 at 3:45:00 PM GMT-8"
+
+eastCoastStyle.format(date)
 // "Thursday, November 12, 1970 at 18:45:00 EST"
 ```
 
-Importantly, the formatters don't change the actual date in any way, they merely affects how the dates are represented as strings.
-
-But what if we want to actually change the time zone of the date?
+To re-anchor the date so the wall-clock reading travels with it, use `inTimeZone(_:calendar:)`:
 
 ```swift
-import TimeTravel
+let nyc = TimeZone(identifier: "America/New_York")!
+let shifted = date.inTimeZone(nyc, calendar: calendar)!
 
-let date = Date.explodingWhaleDay
-date.timeIntervalSince1970
-// 27,301,500
+date.timeIntervalSince1970     // 27,301,500
+shifted.timeIntervalSince1970  // 27,290,700  (three hours earlier)
 
-var calendar = Calendar(identifier: .gregorian)
-calendar.timeZone = TimeZone(identifier: "America/Los_Angeles")!
-let newTimeZone = TimeZone(identifier: "America/New_York")!
+westCoastStyle.format(shifted)
+// "Thursday, November 12, 1970 at 12:45:00 PM PST"
 
-let newDate = calendar.date(bySettingTimeZone: newTimeZone, of: date)!
-
-newDate.timeIntervalSince1970
-// 27,290,700.0
-
-westCoastStyle.format(newDate)
-// Thursday, November 12, 1970 at 12:45:00 PM PST
-
-eastCoastStyle.format(newDate)
-// Thursday, November 12, 1970 at 3:45:00 PM EST
-
-// or
-
-let newDate2 = date.inTimeZone(newTimeZone, calendar: calendar)!
-
-newDate2.timeIntervalSince1970
-// 27,290,700.0
-
+eastCoastStyle.format(shifted)
+// "Thursday, November 12, 1970 at 3:45:00 PM EST"
 ```
 
-Notice that the Date has now changed by 3 hours.
+The underlying instant moved by three hours, so the new wall-clock reading in NYC matches the original wall-clock reading in Florence, Oregon.
 
+### Why this isn't built in
+
+Apple's [`TimeZone`](https://developer.apple.com/documentation/foundation/timezone) docs note that "Cocoa does not provide any API to change the time zone of the computer, or of other applications." Combined with `Date`'s zone-less model, that makes deterministic time-zone shifts awkward — this library smooths over the gap.
 
 ## Installation
 
@@ -125,4 +105,3 @@ let package = Package(
 ## Further reading
 
 Calendars and dates are full of edge cases that look obvious until they aren't. For a quick tour of the assumptions that quietly break — leap seconds, time zones that change offset, calendars that disagree on what year it is — see [Your Calendrical Fallacy Is…](https://yourcalendricalfallacyis.com).
-
