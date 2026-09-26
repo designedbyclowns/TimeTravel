@@ -1,9 +1,8 @@
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fdesignedbyclowns%2FTimeTravel%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/designedbyclowns/TimeTravel)
-[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fdesignedbyclowns%2FTimeTravel%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/designedbyclowns/TimeTravel)
 
 # TimeTravel
 
-Re-anchor a `Date` to a new time zone — the underlying instant shifts so the wall-clock reading travels with it.
+Re-anchor a `Date` to a new time zone — the underlying instant shifts so the wall-clock reading travels with it — and keep a day the same day wherever it's read.
 
 Swift's `Date` is just an absolute instant — it carries no time zone of its own. That's the right model for "when did this happen", but the wrong model for cases where the wall-clock value is the truth:
 
@@ -55,10 +54,10 @@ Format styles don't change the date — they only change how it's rendered. The 
 let date = Date.explodingWhaleDay
 
 westCoastStyle.format(date)
-// "Thursday, 12 November 1970 at 3:45:00 PM GMT-8"
+// "Thursday, November 12, 1970 at 3:45:00 PM PST"
 
 eastCoastStyle.format(date)
-// "Thursday, November 12, 1970 at 18:45:00 EST"
+// "Thursday, November 12, 1970 at 6:45:00 PM EST"
 ```
 
 To re-anchor the date so the wall-clock reading travels with it, use `inTimeZone(_:calendar:)`:
@@ -83,7 +82,27 @@ The underlying instant moved by three hours, so the new wall-clock reading in NY
 
 Apple's [`TimeZone`](https://developer.apple.com/documentation/foundation/timezone) docs note that "Cocoa does not provide any API to change the time zone of the computer, or of other applications." Combined with `Date`'s zone-less model, that makes deterministic time-zone shifts awkward — this library smooths over the gap.
 
+## Days that don't move
+
+Some dates are days rather than instants — when work was done, when something falls due, a birthday. Store one as a `Date` and it can land on a different day for someone reading it in another time zone. `CalendarDay` is the day itself:
+
+```swift
+let losAngeles = TimeZone(name: .americaLosAngeles)!
+let tokyo = TimeZone(name: .asiaTokyo)!
+
+let day = CalendarDay(.explodingWhaleDay, in: losAngeles)  // 1970-11-12
+CalendarDay(.explodingWhaleDay, in: tokyo)                 // 1970-11-13 — already the next morning
+
+day.start(in: tokyo)          // midnight on the 12th, in Tokyo
+day.adding(days: 30)          // 1970-12-12
+day.daysSinceReferenceDate    // -11,008 — sorts and compares as the days do, for storage
+```
+
+Every conversion names its time zone, for the same reason `inTimeZone(_:calendar:)` takes a calendar. A day encodes as `yyyy-MM-dd`.
+
 ## Installation
+
+TimeTravel needs macOS 12, iOS 15, tvOS 15, watchOS 8 or visionOS 1, or later.
 
 Add the package as a dependency in your Package.swift file
 
@@ -92,7 +111,7 @@ let package = Package(
     name: "Foo",
     // name, platforms, products, etc.
     dependencies: [
-        .package(url: "https://github.com/designedbyclowns/TimeTravel", .upToNextMinor(from: "0.1.0")),
+        .package(url: "https://github.com/designedbyclowns/TimeTravel", .upToNextMinor(from: "0.2.0")),
     ],
     targets: [
         .target(name: "Foo", dependencies: [
@@ -101,7 +120,3 @@ let package = Package(
     ]
 )
 ```
-
-## Further reading
-
-Calendars and dates are full of edge cases that look obvious until they aren't. For a quick tour of the assumptions that quietly break — leap seconds, time zones that change offset, calendars that disagree on what year it is — see [Your Calendrical Fallacy Is…](https://yourcalendricalfallacyis.com).

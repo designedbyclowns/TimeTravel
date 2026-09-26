@@ -4,7 +4,10 @@ This file provides guidance to coding agents working in this repository.
 
 ## Project
 
-`TimeTravel` is a small Swift Package (swift-tools 6.2) that provides Foundation extensions for re-anchoring a `Date` to a different `TimeZone`. The core operation is computing a delta between two zones for a given instant and adding it as seconds — this intentionally produces a *different* point in time, not just a different rendering. See `Sources/TimeTravel/Public/Calendar+TimeTravel.swift` and `Date+TimeTravel.swift`.
+`TimeTravel` is a small Swift Package (swift-tools 6.2, macOS 12 / iOS 15 and later) that provides Foundation extensions for re-anchoring a `Date` to a different `TimeZone`, and `CalendarDay`, a day that stays the same wherever it's read.
+
+- **Re-anchoring** reads a date's wall-clock components in the source zone and rebuilds them in the destination zone, so the destination's own offset at that reading applies, including across a clock change. This intentionally produces a *different* point in time, not just a different rendering. See `Sources/TimeTravel/Public/Calendar+TimeTravel.swift`; `Date.inTimeZone(_:calendar:)` calls it.
+- **`CalendarDay`** (`Public/CalendarDay.swift`) stores a day as a count of days since the reference date, converts to and from instants only with a named time zone, and encodes as `yyyy-MM-dd` using `Date.ISO8601FormatStyle`, which is what sets the platform floor.
 
 ## Commands
 

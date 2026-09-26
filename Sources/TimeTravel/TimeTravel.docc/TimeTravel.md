@@ -1,6 +1,6 @@
 # ``TimeTravel``
 
-Foundation extensions for re-anchoring a `Date` to a different `TimeZone`.
+Foundation extensions for re-anchoring a `Date` to a different `TimeZone`, and a day that stays the same wherever it's read.
 
 ## Overview
 
@@ -21,7 +21,14 @@ let shifted = date.inTimeZone(nyc, calendar: calendar)!
 // In NYC, `shifted` reads 15:45 — the same wall-clock value, re-anchored.
 ```
 
+For dates that are days rather than instants — when work was done, when something falls due —
+``CalendarDay`` is a day that stays the same wherever it's read.
+
 ## Topics
+
+### Days that don't move
+
+- ``CalendarDay``
 
 ### Shifting dates between time zones
 
@@ -44,7 +51,3 @@ let shifted = date.inTimeZone(nyc, calendar: calendar)!
 ### Deprecated
 
 - ``Foundation/TimeZone/timeIntervalFromTimeZone(_:forDate:)``
-
-## See Also
-
-- [Your Calendrical Fallacy Is…](https://yourcalendricalfallacyis.com) — a quick tour of calendar and date assumptions that quietly break: leap seconds, time zones that change offset, calendars that disagree on what year it is.
